@@ -46,6 +46,7 @@ sts.ex.sat <- subset(states.data, select = c("expense", "csat"))
 summary(sts.ex.sat)
 # correlation between expense and csat
 cor(sts.ex.sat)
+# Not a very strong correlation between expense & csat (-0.4663)
 
 ## Plot the data before fitting models
 ## ───────────────────────────────────────
@@ -137,6 +138,55 @@ coef(summary(sat.voting.mod))
 ##   repeat steps 1-3. Is this model significantly better than the model
 ##   with /metro/ as the only predictor?
 
+# Data Set containing Per Capita Energy Consumption and % Population in Metropolitan Area
+states.enrg.met <- subset(states.data, select = c("energy", "metro"))
+
+# Study the new data set
+summary(states.enrg.met)
+plot(states.enrg.met)
+
+cor(states.enrg.met, use="pairwise")
+# There is a Negative Correlation betweeen "energy" & "metro" of -0.3397
+
+# Linear Regression Model b/w "energy" & "metro"
+mod.enrg.met <- lm(energy ~ metro, data = states.data)
+summary(mod.enrg.met)
+
+# Plot Linear Regression Model to look for deviations from Modelling Assumptions
+plot(mod.enrg.met)
+
+# Check Correation between variable
+cor(na.omit(states.data[c("density", "metro", "waste", "energy", "toxic","green","income")]))
+# We see a strong correlation between "energy" & [green, toxic, income]
+# Income, metro, waste having a negitive correlation with energy is against intuition
+# Density having a negitive correlation with energy is intuitive
+
+
+#Adding green to the Linear Regression Model
+mod.enrg.met.grn <- lm(energy ~ metro + green, data = states.data)
+summary(mod.enrg.met.grn)
+# Adjusted R-squared increases to 0.5758 from 0.097
+
+#Adding toxic to the Linear Regression Model
+mod.enrg.met.grn.tox <- lm(energy ~ metro + green + toxic, data = states.data)
+summary(mod.enrg.met.grn.tox)
+# Adjusted R-squared increases to 0.7483 from 0.5758
+
+#Removing metro to the Linear Regression Model
+mod.enrg.grn.tox <- lm(energy ~ green + toxic, data = states.data)
+summary(mod.enrg.grn.tox)
+# Adjusted R-squared increases to 0.7483 from 0.7521
+
+#Adding density to the Linear Regression Model
+mod.enrg.grn.tox.den <- lm(energy ~ green + toxic + density, data = states.data)
+summary(mod.enrg.grn.tox.den)
+# Adjusted R-squared decreases to 0.747 from 0.7483 and no stars in front of density show that it is weakly related to energy
+
+# Final Linear Regression Model for energy Uses green & toxic
+mod.enrg.grn.tox <- lm(energy ~ green + toxic, data = states.data)
+summary(mod.enrg.grn.tox)
+# Adjusted R-squared is 0.7521
+
 ## Interactions and factors
 ## ══════════════════════════
 
@@ -203,3 +253,11 @@ coef(summary(lm(csat ~ C(region, contr.helmert),
 
 ##   2. Try adding region to the model. Are there significant differences
 ##      across the four regions?
+
+# Generating an Interaction by Waste
+mod.enrgy.metro.by.waste <- lm(energy ~ metro * waste, data = states.data)
+coef(summary(mod.enrgy.metro.by.waste))
+anova(mod.enrgy.metro.by.waste) # show ANOVA table
+
+mod.enrg.metro.by.waste.region <- lm(energy ~ metro * waste + region, data = states.data)
+anova(mod.enrg.metro.by.waste.region)
