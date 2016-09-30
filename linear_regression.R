@@ -251,13 +251,13 @@ coef(summary(lm(csat ~ C(region, contr.helmert),
 ##   1. Add on to the regression equation that you created in exercise 1 by
 ##      generating an interaction term and testing the interaction.
 
-##   2. Try adding region to the model. Are there significant differences
-##      across the four regions?
-
 # Generating an Interaction by Waste
 mod.enrgy.metro.by.waste <- lm(energy ~ metro * waste, data = states.data)
 coef(summary(mod.enrgy.metro.by.waste))
 anova(mod.enrgy.metro.by.waste) # show ANOVA table
+
+##   2. Try adding region to the model. Are there significant differences
+##      across the four regions?
 
 mod.enrg.metro.by.waste.region <- lm(energy ~ metro * waste + region, data = states.data)
 anova(mod.enrg.metro.by.waste.region)
